@@ -1,53 +1,155 @@
-# This is a basic workflow to help you get started with Actions
+# choosing the frame work
+# Initalising a NUXT JS project
+npx create-nuxt-app frontend
+programing the frontend
++export default {
+  mode: 'universal',
+  /*
+   ** Headers of the page
+   */
+  head: {
+    title: process.env.npm_package_name || '',
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      {
+        hid: 'description',
+        name: 'description',
+        content: process.env.npm_package_description || ''
+      }
+    ],
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+  },
+  /*
+   ** Customize the progre
+styling using Sass
+#implementing the interface
+#the layout_default.vue
++<template>
+  <div class="main">
+    <div class="main-links">
+      <nuxt-link to="/">Home Page</nuxt-link>|
+      <div @click="logout" v-if="loggedIn" class="logout-link">Logout</div>
+      <nuxt-link v-else to="/login">Login Page</nuxt-link>|
+      <nuxt-link to="/secret">Secret Page</nuxt-link>
+    </div>
+    <nuxt />
+  </div>
+</template>
+<script>
+import Cookies from 'js-cookie'
+import * as firebase from 'firebase/app'
+import 'firebase/auth'
 
-name: CI
-name: GitHub Actions Demo
-on: [push]
-jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+export default {
+  data() {
+    return {
+      loggedIn: false
+    }
+#creating a login.vue
++<template>
+  <div class="login">
+    <h3>Login</h3>
+    <form @submit.prevent="pressed">
+      <div class="login">
+        <input type="text" placeholder="login" v-model="email" />
+      </div>
+      <div class="password">
+        <input type="password" placeholder="password" v-model="password" />
+      </div>
+      <button>Login</button>
+    </form>
+    <div class="error" v-if="error">{{error.message}}</div>
+  </div>
+</template>
 
-# Controls when the action will run. 
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+<script>
+import * as firebase from 'firebase/app'
+import 'firebase/auth'
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      error: ''
+    }
+  },
+  methods: {
+    pressed() {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .then(data => {
+          console.log(data)
+          this.$router.replace({ name: 'secret' })
+        })
+        .catch(error => {
+          this.error = error
+        })
+    }
+  }
+}
+</script>
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+<style  scoped>
+.login {
+  margin-top: 50px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+div {
+  color: inherit;
+}
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+input {
+  width: 400px;
+  padding: 30px;
+  margin: 20px;
+  font-size: 21px;
+}
+button {
+  width: 400px;
+  height: 75px;
+  font-size: 100%;
+}
+.error {
+  color: red;
+}
+</style>
+#connect with fire base using  plugin firebase.js
++import * as firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/firestore'
+import 'firebase/database'
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: '',
+  authDomain: '',
+  databaseURL: '',
+  projectId: '',
+  storageBucket: '',
+  messagingSenderId: '',
+  appId: ''
+}
+// Initialize Firebase
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+let app = null
+if (!firebase.apps.length) {
+  app = firebase.initializeApp(firebaseConfig)
+}
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+export const auth = firebase.auth()
+export const DB = firebase.database()
+export const StoreDB = firebase.firestore()
+export default firebase
+
